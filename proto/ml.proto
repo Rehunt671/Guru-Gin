@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package services;
+option go_package="./services";
+
+// The request message containing the list of images.
+message ImageRequest {
+  repeated bytes images = 1;
+}
+
+// The response message containing the classification results for each image.
+message ImageResponse {
+  repeated string classifications = 1;
+}
+
+// The image classification service definition.
+service MLService {
+  rpc ClassifyImages (ImageRequest) returns (ImageResponse);
+}

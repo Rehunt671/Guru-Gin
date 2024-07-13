@@ -1,0 +1,1 @@
+protoc ml.proto --go_out=../api_service --go-grpc_out=../api_service
