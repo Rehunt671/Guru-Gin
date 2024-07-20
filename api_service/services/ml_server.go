@@ -10,6 +10,6 @@ func NewMLServiceServer() MLServiceServer {
 }
 
 func (s *mlServer) mustEmbedUnimplementedMLServiceServer() {}
-func (s *mlServer) ClassifyImages(ctx context.Context, req *ImageRequest) (*ImageResponse, error) {
+func (s *mlServer) DetectObjects(ctx context.Context, req *ImageRequest) (*ImageResponse, error) {
 	return nil, nil
 }

@@ -8,5 +8,5 @@ import (
 func SetupMLRouter(router fiber.Router, mlHandler handlers.MLHandler) {
 	ml := router.Group("/ml")
 	ml.Post("/train", mlHandler.TrainModel)
-	ml.Post("/classify", mlHandler.ClassifyImages)
+	ml.Post("/classify", mlHandler.DetectObjects)
 }

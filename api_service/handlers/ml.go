@@ -13,7 +13,7 @@ import (
 
 type MLHandler interface {
 	TrainModel(*fiber.Ctx) error
-	ClassifyImages(*fiber.Ctx) error
+	DetectObjects(*fiber.Ctx) error
 }
 
 type mlHandler struct {
@@ -31,32 +31,26 @@ func (h *mlHandler) TrainModel(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (h *mlHandler) ClassifyImages(ctx *fiber.Ctx) error {
-	form, err := ctx.MultipartForm()
+func (h *mlHandler) DetectObjects(ctx *fiber.Ctx) error {
+	fileHeader, err := ctx.FormFile("file")
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).SendString("Failed to get multipart form")
+		return ctx.Status(fiber.StatusBadRequest).SendString("Failed to get file from form")
 	}
 
-	files := form.File["files"]
-	var images [][]byte
+	file, err := fileHeader.Open()
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).SendString("Failed to open file")
+	}
+	defer file.Close()
 
-	for _, fileHeader := range files {
-		file, err := fileHeader.Open()
-		if err != nil {
-			return ctx.Status(fiber.StatusBadRequest).SendString("Failed to open file")
-		}
-		defer file.Close()
-
-		buf := bytes.NewBuffer(nil)
-		if _, err := io.Copy(buf, file); err != nil {
-			return ctx.Status(fiber.StatusBadRequest).SendString("Failed to read file")
-		}
-		images = append(images, buf.Bytes())
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).SendString("Failed to read file")
 	}
 
-	classifications, err := h.classifyImagesWithGRPC(images)
+	classifications, err := h.DetectObjectWithGRPC(buf.Bytes())
 	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Failed to classify images: %v", err))
+		return ctx.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Failed to classify image: %v", err))
 	}
 
 	return ctx.JSON(fiber.Map{
@@ -64,17 +58,17 @@ func (h *mlHandler) ClassifyImages(ctx *fiber.Ctx) error {
 	})
 }
 
-func (h *mlHandler) classifyImagesWithGRPC(images [][]byte) ([]string, error) {
+func (h *mlHandler) DetectObjectWithGRPC(image []byte) ([]string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	req := &services.ImageRequest{
-		Images: images,
+		Image: image,
 	}
 
-	res, err := h.mlClient.ClassifyImages(ctx, req)
+	res, err := h.mlClient.DetectObjects(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to classify images: %v", err)
+		return nil, fmt.Errorf("failed to classify image: %v", err)
 	}
 
 	return res.GetClassifications(), nil

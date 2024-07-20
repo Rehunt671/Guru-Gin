@@ -22,7 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MLServiceClient interface {
-	ClassifyImages(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
+	// Bidirectional streaming RPC method for image classification.
+	DetectObjects(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error)
 }
 
 type mLServiceClient struct {
@@ -33,9 +34,9 @@ func NewMLServiceClient(cc grpc.ClientConnInterface) MLServiceClient {
 	return &mLServiceClient{cc}
 }
 
-func (c *mLServiceClient) ClassifyImages(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error) {
+func (c *mLServiceClient) DetectObjects(ctx context.Context, in *ImageRequest, opts ...grpc.CallOption) (*ImageResponse, error) {
 	out := new(ImageResponse)
-	err := c.cc.Invoke(ctx, "/services.MLService/ClassifyImages", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/ml.MLService/DetectObjects", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,8 @@ func (c *mLServiceClient) ClassifyImages(ctx context.Context, in *ImageRequest, 
 // All implementations must embed UnimplementedMLServiceServer
 // for forward compatibility
 type MLServiceServer interface {
-	ClassifyImages(context.Context, *ImageRequest) (*ImageResponse, error)
+	// Bidirectional streaming RPC method for image classification.
+	DetectObjects(context.Context, *ImageRequest) (*ImageResponse, error)
 	mustEmbedUnimplementedMLServiceServer()
 }
 
@@ -54,8 +56,8 @@ type MLServiceServer interface {
 type UnimplementedMLServiceServer struct {
 }
 
-func (UnimplementedMLServiceServer) ClassifyImages(context.Context, *ImageRequest) (*ImageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClassifyImages not implemented")
+func (UnimplementedMLServiceServer) DetectObjects(context.Context, *ImageRequest) (*ImageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DetectObjects not implemented")
 }
 func (UnimplementedMLServiceServer) mustEmbedUnimplementedMLServiceServer() {}
 
@@ -70,20 +72,20 @@ func RegisterMLServiceServer(s grpc.ServiceRegistrar, srv MLServiceServer) {
 	s.RegisterService(&MLService_ServiceDesc, srv)
 }
 
-func _MLService_ClassifyImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MLService_DetectObjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ImageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MLServiceServer).ClassifyImages(ctx, in)
+		return srv.(MLServiceServer).DetectObjects(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.MLService/ClassifyImages",
+		FullMethod: "/ml.MLService/DetectObjects",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MLServiceServer).ClassifyImages(ctx, req.(*ImageRequest))
+		return srv.(MLServiceServer).DetectObjects(ctx, req.(*ImageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -92,12 +94,12 @@ func _MLService_ClassifyImages_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MLService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "services.MLService",
+	ServiceName: "ml.MLService",
 	HandlerType: (*MLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ClassifyImages",
-			Handler:    _MLService_ClassifyImages_Handler,
+			MethodName: "DetectObjects",
+			Handler:    _MLService_DetectObjects_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
