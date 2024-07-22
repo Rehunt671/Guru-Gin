@@ -3,7 +3,8 @@ from PIL import Image
 from ultralytics import YOLO 
 import ml_pb2_grpc
 import ml_pb2
-
+import io
+import os
 class MLService(ml_pb2_grpc.MLServiceServicer):
     def __init__(self):
         # Initialize and train the YOLOv9 model
@@ -48,8 +49,20 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
         return classifications 
     
     def DetectObjects(self, request, context):
-        image = Image.open(io.BytesIO(request.image))
-        image.save("image.jpg") 
-        classifications = self.process_image("image.jpg")
-        os.remove("image.jpg")
-        return ml_pb2.ImageResponse(classifications=classifications)
+        try:
+            classifications = set()
+            for image_request in request.images:
+                image_data = image_request.image
+                if not isinstance(image_data, bytes):
+                    raise TypeError("Image data is not of type 'bytes'")
+                image = Image.open(io.BytesIO(image_data))
+                image.save("image.jpg") 
+                result = self.process_image("image.jpg") 
+                classifications = classifications.union(result)
+                os.remove("image.jpg")
+            return ml_pb2.ImageResponse(classifications=classifications)
+        except Exception as e:
+            print(f"Exception: {e}")
+            context.set_details(f'Exception calling application: {str(e)}')
+            context.set_code(ml_pb2.StatusCode.UNKNOWN)
+            return ml_pb2.ImageResponse()

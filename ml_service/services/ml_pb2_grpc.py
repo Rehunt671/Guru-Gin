@@ -42,7 +42,7 @@ class MLServiceStub(object):
         """
         self.DetectObjects = channel.unary_unary(
                 '/ml.MLService/DetectObjects',
-                request_serializer=ml__pb2.ImageRequest.SerializeToString,
+                request_serializer=ml__pb2.ImagesRequest.SerializeToString,
                 response_deserializer=ml__pb2.ImageResponse.FromString,
                 _registered_method=True)
 
@@ -52,8 +52,7 @@ class MLServiceServicer(object):
     """
 
     def DetectObjects(self, request, context):
-        """Bidirectional streaming RPC method for image classification.
-        """
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -63,7 +62,7 @@ def add_MLServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'DetectObjects': grpc.unary_unary_rpc_method_handler(
                     servicer.DetectObjects,
-                    request_deserializer=ml__pb2.ImageRequest.FromString,
+                    request_deserializer=ml__pb2.ImagesRequest.FromString,
                     response_serializer=ml__pb2.ImageResponse.SerializeToString,
             ),
     }
@@ -93,7 +92,7 @@ class MLService(object):
             request,
             target,
             '/ml.MLService/DetectObjects',
-            ml__pb2.ImageRequest.SerializeToString,
+            ml__pb2.ImagesRequest.SerializeToString,
             ml__pb2.ImageResponse.FromString,
             options,
             channel_credentials,

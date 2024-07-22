@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08ml.proto\x12\x02ml\"\x1d\n\x0cImageRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\"(\n\rImageResponse\x12\x17\n\x0f\x63lassifications\x18\x01 \x03(\t2A\n\tMLService\x12\x34\n\rDetectObjects\x12\x10.ml.ImageRequest\x1a\x11.ml.ImageResponseB\x0cZ\n./servicesb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08ml.proto\x12\x02ml\"1\n\rImagesRequest\x12 \n\x06images\x18\x01 \x03(\x0b\x32\x10.ml.ImageRequest\"\x1d\n\x0cImageRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\"(\n\rImageResponse\x12\x17\n\x0f\x63lassifications\x18\x01 \x03(\t2B\n\tMLService\x12\x35\n\rDetectObjects\x12\x11.ml.ImagesRequest\x1a\x11.ml.ImageResponseB\x0cZ\n./servicesb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,10 +22,12 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ml_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z\n./services'
-  _globals['_IMAGEREQUEST']._serialized_start=16
-  _globals['_IMAGEREQUEST']._serialized_end=45
-  _globals['_IMAGERESPONSE']._serialized_start=47
-  _globals['_IMAGERESPONSE']._serialized_end=87
-  _globals['_MLSERVICE']._serialized_start=89
-  _globals['_MLSERVICE']._serialized_end=154
+  _globals['_IMAGESREQUEST']._serialized_start=16
+  _globals['_IMAGESREQUEST']._serialized_end=65
+  _globals['_IMAGEREQUEST']._serialized_start=67
+  _globals['_IMAGEREQUEST']._serialized_end=96
+  _globals['_IMAGERESPONSE']._serialized_start=98
+  _globals['_IMAGERESPONSE']._serialized_end=138
+  _globals['_MLSERVICE']._serialized_start=140
+  _globals['_MLSERVICE']._serialized_end=206
 # @@protoc_insertion_point(module_scope)

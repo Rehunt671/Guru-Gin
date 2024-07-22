@@ -2,18 +2,23 @@ syntax = "proto3";
 
 package ml;
 option go_package="./services";
+
+// The request message containing an array of images.
+message ImagesRequest {
+  repeated ImageRequest images = 1;
+}
+
 // The request message containing a single image.
 message ImageRequest {
   bytes image = 1;
 }
 
-// The response message containing the classification results for a single image.
+// The response message containing the classification results for the images.
 message ImageResponse {
   repeated string classifications = 1;
 }
 
 // The image classification service definition.
 service MLService {
-  // Bidirectional streaming RPC method for image classification.
-  rpc DetectObjects (ImageRequest) returns (ImageResponse);
+  rpc DetectObjects (ImagesRequest) returns (ImageResponse);
 }
