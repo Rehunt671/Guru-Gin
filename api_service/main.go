@@ -31,7 +31,7 @@ func main() {
 	app := fiber.New()
 
 	// Use grpc.WithTransportCredentials with insecure.NewCredentials() for an insecure connection
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%s", configs.GetMLHOST(), configs.GetMLPort()), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%s", configs.GetMLHOST(), configs.GetMLPort()), grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(1024*1024*50), grpc.MaxCallRecvMsgSize(1024*1024*50)))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

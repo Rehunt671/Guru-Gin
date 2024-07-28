@@ -5,6 +5,8 @@ import ml_pb2_grpc
 import ml_pb2
 import io
 import os
+import uuid
+
 class MLService(ml_pb2_grpc.MLServiceServicer):
     def __init__(self):
         # Initialize and train the YOLOv9 model
@@ -31,14 +33,12 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
         )
         return model
 
-    def process_image(self, image: str):
+    def process(self, source: str):
         classifications = set()
-        # Assuming the model works with numpy arrays
         results = self.model.predict(
-            image,
-            iou=0.8,
-            augment=True,
-            save=True
+            source,      # source 
+            conf=0.6,   # กรองเอาเฉพาะ confidence > 60%
+            save=True,  # save รูปที่ detect ได้ไว้
         )
         for result in results[0]:
             boxes = result.boxes  # Boxes object for bbox outputs
@@ -49,13 +49,15 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
 
         return classifications 
     
-    def DetectObjects(self, request, context):
+    def DetectObjects(self, request_iterator, context):
             classifications = set()
-            for image_request in request.images:
-                image_data = image_request.image
+            for image_request in request_iterator:
+                ext =  image_request.info.image_type
+                unique_filename = f"{uuid.uuid4()}{ext}"
+                image_data = image_request.data
                 image = Image.open(io.BytesIO(image_data))
-                image.save("image.jpg")
-                result = self.process_image("image.jpg") 
-                os.remove("image.jpg")
+                image.save(unique_filename)
+                result = self.process(unique_filename) 
+                os.remove(unique_filename)
                 classifications = classifications.union(result)
             return ml_pb2.ImageResponse(classifications=classifications)

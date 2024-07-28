@@ -40,9 +40,9 @@ class MLServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.DetectObjects = channel.unary_unary(
+        self.DetectObjects = channel.stream_unary(
                 '/ml.MLService/DetectObjects',
-                request_serializer=ml__pb2.ImagesRequest.SerializeToString,
+                request_serializer=ml__pb2.ImageRequest.SerializeToString,
                 response_deserializer=ml__pb2.ImageResponse.FromString,
                 _registered_method=True)
 
@@ -51,7 +51,7 @@ class MLServiceServicer(object):
     """The image classification service definition.
     """
 
-    def DetectObjects(self, request, context):
+    def DetectObjects(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -60,9 +60,9 @@ class MLServiceServicer(object):
 
 def add_MLServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'DetectObjects': grpc.unary_unary_rpc_method_handler(
+            'DetectObjects': grpc.stream_unary_rpc_method_handler(
                     servicer.DetectObjects,
-                    request_deserializer=ml__pb2.ImagesRequest.FromString,
+                    request_deserializer=ml__pb2.ImageRequest.FromString,
                     response_serializer=ml__pb2.ImageResponse.SerializeToString,
             ),
     }
@@ -78,7 +78,7 @@ class MLService(object):
     """
 
     @staticmethod
-    def DetectObjects(request,
+    def DetectObjects(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -88,11 +88,11 @@ class MLService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
+        return grpc.experimental.stream_unary(
+            request_iterator,
             target,
             '/ml.MLService/DetectObjects',
-            ml__pb2.ImagesRequest.SerializeToString,
+            ml__pb2.ImageRequest.SerializeToString,
             ml__pb2.ImageResponse.FromString,
             options,
             channel_credentials,

@@ -1,7 +1,5 @@
 package services
 
-import context "context"
-
 type mlServer struct {
 }
 
@@ -10,6 +8,6 @@ func NewMLServiceServer() MLServiceServer {
 }
 
 func (s *mlServer) mustEmbedUnimplementedMLServiceServer() {}
-func (s *mlServer) DetectObjects(ctx context.Context, req *ImagesRequest) (*ImageResponse, error) {
-	return nil, nil
+func (s *mlServer) DetectObjects(stream MLService_DetectObjectsServer) error {
+	return nil
 }

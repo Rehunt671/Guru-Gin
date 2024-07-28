@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MLServiceClient interface {
-	DetectObjects(ctx context.Context, in *ImagesRequest, opts ...grpc.CallOption) (*ImageResponse, error)
+	DetectObjects(ctx context.Context, opts ...grpc.CallOption) (MLService_DetectObjectsClient, error)
 }
 
 type mLServiceClient struct {
@@ -33,20 +33,45 @@ func NewMLServiceClient(cc grpc.ClientConnInterface) MLServiceClient {
 	return &mLServiceClient{cc}
 }
 
-func (c *mLServiceClient) DetectObjects(ctx context.Context, in *ImagesRequest, opts ...grpc.CallOption) (*ImageResponse, error) {
-	out := new(ImageResponse)
-	err := c.cc.Invoke(ctx, "/ml.MLService/DetectObjects", in, out, opts...)
+func (c *mLServiceClient) DetectObjects(ctx context.Context, opts ...grpc.CallOption) (MLService_DetectObjectsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &MLService_ServiceDesc.Streams[0], "/ml.MLService/DetectObjects", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &mLServiceDetectObjectsClient{stream}
+	return x, nil
+}
+
+type MLService_DetectObjectsClient interface {
+	Send(*ImageRequest) error
+	CloseAndRecv() (*ImageResponse, error)
+	grpc.ClientStream
+}
+
+type mLServiceDetectObjectsClient struct {
+	grpc.ClientStream
+}
+
+func (x *mLServiceDetectObjectsClient) Send(m *ImageRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *mLServiceDetectObjectsClient) CloseAndRecv() (*ImageResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(ImageResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // MLServiceServer is the server API for MLService service.
 // All implementations must embed UnimplementedMLServiceServer
 // for forward compatibility
 type MLServiceServer interface {
-	DetectObjects(context.Context, *ImagesRequest) (*ImageResponse, error)
+	DetectObjects(MLService_DetectObjectsServer) error
 	mustEmbedUnimplementedMLServiceServer()
 }
 
@@ -54,8 +79,8 @@ type MLServiceServer interface {
 type UnimplementedMLServiceServer struct {
 }
 
-func (UnimplementedMLServiceServer) DetectObjects(context.Context, *ImagesRequest) (*ImageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DetectObjects not implemented")
+func (UnimplementedMLServiceServer) DetectObjects(MLService_DetectObjectsServer) error {
+	return status.Errorf(codes.Unimplemented, "method DetectObjects not implemented")
 }
 func (UnimplementedMLServiceServer) mustEmbedUnimplementedMLServiceServer() {}
 
@@ -70,22 +95,30 @@ func RegisterMLServiceServer(s grpc.ServiceRegistrar, srv MLServiceServer) {
 	s.RegisterService(&MLService_ServiceDesc, srv)
 }
 
-func _MLService_DetectObjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ImagesRequest)
-	if err := dec(in); err != nil {
+func _MLService_DetectObjects_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MLServiceServer).DetectObjects(&mLServiceDetectObjectsServer{stream})
+}
+
+type MLService_DetectObjectsServer interface {
+	SendAndClose(*ImageResponse) error
+	Recv() (*ImageRequest, error)
+	grpc.ServerStream
+}
+
+type mLServiceDetectObjectsServer struct {
+	grpc.ServerStream
+}
+
+func (x *mLServiceDetectObjectsServer) SendAndClose(m *ImageResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *mLServiceDetectObjectsServer) Recv() (*ImageRequest, error) {
+	m := new(ImageRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(MLServiceServer).DetectObjects(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/ml.MLService/DetectObjects",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MLServiceServer).DetectObjects(ctx, req.(*ImagesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 // MLService_ServiceDesc is the grpc.ServiceDesc for MLService service.
@@ -94,12 +127,13 @@ func _MLService_DetectObjects_Handler(srv interface{}, ctx context.Context, dec 
 var MLService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "ml.MLService",
 	HandlerType: (*MLServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "DetectObjects",
-			Handler:    _MLService_DetectObjects_Handler,
+			StreamName:    "DetectObjects",
+			Handler:       _MLService_DetectObjects_Handler,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "ml.proto",
 }
