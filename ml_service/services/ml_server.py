@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import ml_pb2_grpc
 import ml_pb2
 import io
-import uuid
+import os
 class MLService(ml_pb2_grpc.MLServiceServicer):
     def __init__(self):
         # Initialize and train the YOLOv9 model
@@ -31,23 +31,22 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
         )
         return model
 
-    def process_image(self, image: Image):
-        classifications = set();
+    def process_image(self, image: str):
+        classifications = set()
+        # Assuming the model works with numpy arrays
         results = self.model.predict(
             image,
-            iou=0.2,
-            conf=0.1,
+            iou=0.8,
             augment=True,
+            save=True
         )
-
         for result in results[0]:
-            result_filename = f"result_{uuid.uuid4().hex}.jpg"
-            result.save(result_filename)
             boxes = result.boxes  # Boxes object for bbox outputs
             for box in boxes:
                 class_of_object = results[0].names.get(box.cls.item())
                 confidence = box.conf.item()  # confidence scores
                 classifications.add(class_of_object)
+
         return classifications 
     
     def DetectObjects(self, request, context):
@@ -55,6 +54,8 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
             for image_request in request.images:
                 image_data = image_request.image
                 image = Image.open(io.BytesIO(image_data))
-                result = self.process_image(image) 
+                image.save("image.jpg")
+                result = self.process_image("image.jpg") 
+                os.remove("image.jpg")
                 classifications = classifications.union(result)
             return ml_pb2.ImageResponse(classifications=classifications)
