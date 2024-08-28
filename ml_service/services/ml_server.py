@@ -1,4 +1,3 @@
-
 from PIL import Image  
 from ultralytics import YOLO 
 import ml_pb2_grpc
@@ -9,30 +8,14 @@ import uuid
 
 class MLService(ml_pb2_grpc.MLServiceServicer):
     def __init__(self):
-        # Initialize and train the YOLOv9 model
+        # Initialize model
         self.model = self.initialize_model()
 
     def initialize_model(self):
-        # Build a YOLOv9c model from pretrained weight
         model = YOLO("./runs/detect/train/weights/best.pt")
-        # Display model information (optional) 
         model.info() 
         return model
     
-    def train_model(self):
-        # Build a YOLOv9c model from pretrained weight
-        model = YOLO("./yolov9c.pt")
-        # Display model information (optional) 
-        model.info() 
-        # Train the model on the roboflow example dataset for 100 epochs
-        model.train(
-            data="./datasets/data.yaml",
-            epochs=100,
-            imgsz=512,
-            patience=10,              # Early stopping patience (epochs)
-        )
-        return model
-
     def process(self, source: str):
         classifications = set()
         results = self.model.predict(
