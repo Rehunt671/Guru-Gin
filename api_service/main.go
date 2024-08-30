@@ -38,7 +38,8 @@ func main() {
 	defer conn.Close()
 
 	mlClient := services.NewMLServiceClient(conn)
-	routers.SetupRoutes(app.Group("/api"), handlers.NewMLHandler(mlClient))
+	mlService := services.NewMLService(mlClient)
+	routers.SetupRoutes(app.Group("/api"), handlers.NewMLHandler(mlService))
 
 	if err := app.Listen(fmt.Sprintf(":%s", configs.GetAPIPort())); err != nil {
 		log.Fatal(err)

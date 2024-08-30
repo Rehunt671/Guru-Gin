@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres
+    container_name: gurugin_db
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - gurugin_data:/var/lib/postgresql/data
+    networks:
+      - gurugin_net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: gurugin_pgadmin
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PG_ADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PG_ADMIN_PASSWORD}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - gurugin_net
+
+volumes:
+  gurugin_data:
+    external: false
+  pgadmin_data:
+    external: false
+
+networks:
+  gurugin_net:
+    driver: bridge
+    external: false
