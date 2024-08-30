@@ -1,10 +1,11 @@
 package models
 
 type Menu struct {
-	ID        uint `gorm:"primaryKey"`
-	UserID    uint
-	User      User   `gorm:"foreignKey:UserID"` // BelongTo Relation
-	Name      string `gorm:"size:255"`
-	ImageName string `gorm:"size:255"`
-	Rating    int
+	ID        uint   `gorm:"primaryKey" json:"id"`
+	CuisineID uint   `json:"cuisine_id"`
+	Name      string `gorm:"unique" json:"name"`
+	Rating    int    `json:"rating"`
+	// Relations
+	Cuisine Cuisine  `gorm:"foreignKey:CuisineID" json:"cuisine"`
+	Recipes []Recipe `json:"recipes"`
 }

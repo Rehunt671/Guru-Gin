@@ -8,6 +8,8 @@ import (
 	"mime/multipart"
 	"path/filepath"
 	"time"
+
+	"gitlab.com/gurugin/repositories"
 )
 
 type MLService interface {
@@ -15,12 +17,14 @@ type MLService interface {
 }
 
 type mlService struct {
-	mlClient MLServiceClient
+	mlClient         MLServiceClient
+	recipeRepository repositories.RecipeRepository
 }
 
-func NewMLService(mlClient MLServiceClient) MLService {
+func NewMLService(mlClient MLServiceClient, recipeRepository repositories.RecipeRepository) MLService {
 	return &mlService{
-		mlClient: mlClient,
+		mlClient:         mlClient,
+		recipeRepository: recipeRepository,
 	}
 }
 

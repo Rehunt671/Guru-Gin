@@ -8,6 +8,7 @@ import (
 	"gitlab.com/gurugin/configs"
 	"gitlab.com/gurugin/db"
 	"gitlab.com/gurugin/handlers"
+	"gitlab.com/gurugin/repositories"
 	"gitlab.com/gurugin/routers"
 	"gitlab.com/gurugin/services"
 	"google.golang.org/grpc"
@@ -27,7 +28,7 @@ import (
 // @BasePath /
 func main() {
 	configs.InitialEnv("../.env")
-	db.NewPostgresDatabase()
+	db := db.NewPostgresDatabase()
 	app := fiber.New()
 
 	// Use grpc.WithTransportCredentials with insecure.NewCredentials() for an insecure connection
@@ -37,8 +38,9 @@ func main() {
 	}
 	defer conn.Close()
 
+	recipeRepository := repositories.NewMLRepository(db)
 	mlClient := services.NewMLServiceClient(conn)
-	mlService := services.NewMLService(mlClient)
+	mlService := services.NewMLService(mlClient, recipeRepository)
 	routers.SetupRoutes(app.Group("/api"), handlers.NewMLHandler(mlService))
 
 	if err := app.Listen(fmt.Sprintf(":%s", configs.GetAPIPort())); err != nil {
