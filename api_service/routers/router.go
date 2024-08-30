@@ -6,7 +6,7 @@ import (
 	"gitlab.com/gurugin/handlers"
 )
 
-func SetupRoutes(r fiber.Router, mlHandler handlers.MLHandler) {
+func SetupRoutes(r fiber.Router, mlHandler handlers.MLHandler, recipeHander handlers.RecipeHandler) {
 	// Serve Swagger documentation
 	r.Get("/swagger/*", swagger.HandlerDefault)
 
@@ -15,4 +15,5 @@ func SetupRoutes(r fiber.Router, mlHandler handlers.MLHandler) {
 
 	// Setup ML routes
 	SetupMLRouter(v1, mlHandler)
+	SetupRecipeRouter(v1, recipeHander)
 }

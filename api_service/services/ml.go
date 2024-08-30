@@ -29,26 +29,27 @@ func NewMLService(mlClient MLServiceClient, recipeRepository repositories.Recipe
 }
 
 func (s *mlService) DetectObjectsWithGRPC(filesHeader []*multipart.FileHeader) ([]string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
+	// Create the gRPC stream
 	stream, err := s.mlClient.DetectObjects(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create stream: %v", err)
 	}
 
+	// Send all image files
 	for _, fileHeader := range filesHeader {
 		file, err := fileHeader.Open()
 		if err != nil {
 			return nil, fmt.Errorf("failed to open file: %v", err)
 		}
+		defer file.Close() // Ensure file is closed after processing
 
 		buf := bytes.NewBuffer(nil)
 		if _, err := io.Copy(buf, file); err != nil {
-			file.Close()
 			return nil, fmt.Errorf("failed to read file: %v", err)
 		}
-		file.Close()
 
 		req := &ImageRequest{
 			Info: &ImageInfo{
@@ -62,10 +63,21 @@ func (s *mlService) DetectObjectsWithGRPC(filesHeader []*multipart.FileHeader) (
 		}
 	}
 
-	res, err := stream.CloseAndRecv()
-	if err != nil {
-		return nil, fmt.Errorf("failed to receive response: %v", err)
+	if err := stream.CloseSend(); err != nil {
+		return nil, fmt.Errorf("failed to close stream: %v", err)
 	}
 
-	return res.Classifications, nil
+	var classifications []string
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			// End of stream, exit loop
+			break
+		} else if err != nil {
+			return nil, fmt.Errorf("error receiving stream: %v", err)
+		}
+		classifications = append(classifications, resp.Classification)
+	}
+
+	return classifications, nil
 }

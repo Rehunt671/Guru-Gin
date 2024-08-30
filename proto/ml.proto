@@ -16,10 +16,10 @@ message ImageRequest {
 
 // The response message containing the classification results for the images.
 message ImageResponse {
-  repeated string classifications = 1;
+  string classification = 1;
 }
 
 // The image classification service definition.
 service MLService {
-  rpc DetectObjects (stream ImageRequest) returns (ImageResponse);
+  rpc DetectObjects (stream ImageRequest) returns (stream ImageResponse);
 }

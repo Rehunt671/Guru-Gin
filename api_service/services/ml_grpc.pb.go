@@ -44,7 +44,7 @@ func (c *mLServiceClient) DetectObjects(ctx context.Context, opts ...grpc.CallOp
 
 type MLService_DetectObjectsClient interface {
 	Send(*ImageRequest) error
-	CloseAndRecv() (*ImageResponse, error)
+	Recv() (*ImageResponse, error)
 	grpc.ClientStream
 }
 
@@ -56,10 +56,7 @@ func (x *mLServiceDetectObjectsClient) Send(m *ImageRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *mLServiceDetectObjectsClient) CloseAndRecv() (*ImageResponse, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
+func (x *mLServiceDetectObjectsClient) Recv() (*ImageResponse, error) {
 	m := new(ImageResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -100,7 +97,7 @@ func _MLService_DetectObjects_Handler(srv interface{}, stream grpc.ServerStream)
 }
 
 type MLService_DetectObjectsServer interface {
-	SendAndClose(*ImageResponse) error
+	Send(*ImageResponse) error
 	Recv() (*ImageRequest, error)
 	grpc.ServerStream
 }
@@ -109,7 +106,7 @@ type mLServiceDetectObjectsServer struct {
 	grpc.ServerStream
 }
 
-func (x *mLServiceDetectObjectsServer) SendAndClose(m *ImageResponse) error {
+func (x *mLServiceDetectObjectsServer) Send(m *ImageResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -132,6 +129,7 @@ var MLService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "DetectObjects",
 			Handler:       _MLService_DetectObjects_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},

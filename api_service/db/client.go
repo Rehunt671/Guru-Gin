@@ -47,7 +47,6 @@ func NewPostgresDatabase() *gorm.DB {
 	if configs == nil {
 		return nil
 	}
-
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		configs.Host, configs.User, configs.Password, configs.DBName, configs.Port, configs.SSLMode,
@@ -56,7 +55,6 @@ func NewPostgresDatabase() *gorm.DB {
 		SkipDefaultTransaction: true,
 		// DisableForeignKeyConstraintWhenMigrating: true,
 	})
-
 	if err != nil {
 		log.Println(err)
 		return nil

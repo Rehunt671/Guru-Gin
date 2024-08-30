@@ -38,11 +38,11 @@ func main() {
 	}
 	defer conn.Close()
 
-	recipeRepository := repositories.NewMLRepository(db)
+	recipeRepo := repositories.NewMLRepository(db)
 	mlClient := services.NewMLServiceClient(conn)
-	mlService := services.NewMLService(mlClient, recipeRepository)
-	routers.SetupRoutes(app.Group("/api"), handlers.NewMLHandler(mlService))
-
+	mlService := services.NewMLService(mlClient, recipeRepo)
+	recipeService := services.NewRecipeService(mlService, recipeRepo)
+	routers.SetupRoutes(app.Group("/api"), handlers.NewMLHandler(mlService), handlers.NewRecipeHandler(mlService, recipeService))
 	if err := app.Listen(fmt.Sprintf(":%s", configs.GetAPIPort())); err != nil {
 		log.Fatal(err)
 	}

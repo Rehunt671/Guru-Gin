@@ -33,14 +33,16 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
         return classifications 
     
     def DetectObjects(self, request_iterator, context):
-            classifications = set()
-            for image_request in request_iterator:
-                ext =  image_request.info.image_type
-                unique_filename = f"{uuid.uuid4()}{ext}"
-                image_data = image_request.data
-                image = Image.open(io.BytesIO(image_data))
-                image.save(unique_filename)
-                result = self.process(unique_filename) 
-                os.remove(unique_filename)
-                classifications = classifications.union(result)
-            return ml_pb2.ImageResponse(classifications=classifications)
+        classifications = set()
+        for image_request in request_iterator:
+            ext = image_request.info.image_type
+            unique_filename = f"{uuid.uuid4()}{ext}"
+            image_data = image_request.data
+            image = Image.open(io.BytesIO(image_data))
+            image.save(unique_filename)
+            result = self.process(image)
+            classifications.update(result)
+            os.remove(unique_filename)
+        
+        for classification in classifications:
+            yield ml_pb2.ImageResponse(classification=classification)

@@ -40,7 +40,7 @@ class MLServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.DetectObjects = channel.stream_unary(
+        self.DetectObjects = channel.stream_stream(
                 '/ml.MLService/DetectObjects',
                 request_serializer=ml__pb2.ImageRequest.SerializeToString,
                 response_deserializer=ml__pb2.ImageResponse.FromString,
@@ -60,7 +60,7 @@ class MLServiceServicer(object):
 
 def add_MLServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'DetectObjects': grpc.stream_unary_rpc_method_handler(
+            'DetectObjects': grpc.stream_stream_rpc_method_handler(
                     servicer.DetectObjects,
                     request_deserializer=ml__pb2.ImageRequest.FromString,
                     response_serializer=ml__pb2.ImageResponse.SerializeToString,
@@ -88,7 +88,7 @@ class MLService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(
+        return grpc.experimental.stream_stream(
             request_iterator,
             target,
             '/ml.MLService/DetectObjects',

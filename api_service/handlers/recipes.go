@@ -39,7 +39,6 @@ func (h *recipeHandler) FindRecipesByIngredients(ctx *fiber.Ctx) error {
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Failed to classify images: %v", err))
 	}
-
 	recipes, err := h.recipeService.FindRecipesByIngredients(ingredients)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).SendString(fmt.Sprintf("Failed to retrieve recipes: %v", err))
