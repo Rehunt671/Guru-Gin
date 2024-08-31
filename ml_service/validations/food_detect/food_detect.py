@@ -35,7 +35,7 @@ def main():
     
     # Save and show the plot
     plt.tight_layout()
-    plt.savefig(f"{output_path}/mAP_plot.png")
+    plt.savefig(f"{output_path}/val/mAP_plot.png")
     plt.show()
 
 if __name__ == "__main__":
