@@ -10,9 +10,9 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
     def __init__(self):
         # Initialize model
         self.model = self.initialize_model()
-
+        
     def initialize_model(self):
-        model = YOLO("./runs/detect/food_detects/train/weights/best.pt")
+        model = YOLO("./models/food_detect/train/weights/best.pt")
         model.info() 
         return model
     

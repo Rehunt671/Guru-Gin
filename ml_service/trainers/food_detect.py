@@ -7,11 +7,11 @@ def train_model():
     # Display model information (optional) 
     model.info() 
     # Specify the output path
-    output_path = "../runs/detect/food_detects"
+    output_path = "./models/food_detect"
     # Train the model on the roboflow example dataset for 100 epochs
     try:
         model.train(
-            data="../datasets/data.yaml",
+            data="./datasets/data.yaml",
             epochs=100,
             imgsz=512,
             patience=10,
