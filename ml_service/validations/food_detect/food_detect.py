@@ -14,8 +14,7 @@ def main():
     # Plot the mAP values
     categories = [f"{i}" for i in range(len(maps))]
     
-    plt.figure(figsize=(18, 15))
-    
+    plt.figure(figsize=(30, 15))
     # Plot mAP50-95
     plt.plot(categories, maps, label='mAP50-95', marker='o')
     plt.axhline(map50_95, color='r', linestyle='--', label='mAP50-95 Mean')
@@ -23,16 +22,16 @@ def main():
     # Plot mAP50
     plt.axhline(map50, color='g', linestyle='--', label='mAP50 Mean')
     
-    # Plot mAP75
+    # Plot mP75
     plt.axhline(map75, color='b', linestyle='--', label='mAP75 Mean')
     
     plt.xlabel('Categories')
     plt.ylabel('mAP')
     plt.title('Mean Average Precision (mAP) for Each Category')
     plt.legend()
-    plt.grid(True)
+    plt.grid(True)  # You can adjust linestyle and linewidth
     plt.xticks(rotation=45)
-    
+    plt.gca().margins(x=0.01)
     # Save and show the plot
     plt.tight_layout()
     plt.savefig(f"{output_path}/val/mAP_plot.png")
