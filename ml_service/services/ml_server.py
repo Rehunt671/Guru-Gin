@@ -20,7 +20,7 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
         classifications = set()
         results = self.model.predict(
             source,      # source 
-            conf=0.6,   # กรองเอาเฉพาะ confidence > 60%
+            augment=True,
             save=True,  # save รูปที่ detect ได้ไว้
         )
         for result in results[0]:
@@ -40,7 +40,7 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
             image_data = image_request.data
             image = Image.open(io.BytesIO(image_data))
             image.save(unique_filename)
-            result = self.process(image)
+            result = self.process(unique_filename)
             classifications.update(result)
             os.remove(unique_filename)
         
