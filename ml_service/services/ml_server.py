@@ -19,14 +19,14 @@ class MLService(ml_pb2_grpc.MLServiceServicer):
     def process(self, source: str):
         classifications = set()
         results = self.model.predict(
-            source,      # source 
+            source,      
             augment=True,
             save=True,  # save รูปที่ detect ได้ไว้
         )
         for result in results[0]:
             boxes = result.boxes  # Boxes object for bbox outputs
             for box in boxes:
-                class_of_object = results[0].names.get(box.cls.item())
+                class_of_object = results[0].names.get(box.cls.item())  # get class name of detected object
                 confidence = box.conf.item()  # confidence scores
                 classifications.add(class_of_object)
 

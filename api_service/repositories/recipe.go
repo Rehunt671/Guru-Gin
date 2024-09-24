@@ -22,12 +22,13 @@ func NewMLRepository(db *gorm.DB) RecipeRepository {
 func (r *recipeRepository) FindRecipesByIngredients(ingredientNames []string) ([]models.Recipe, error) {
 	var recipes []models.Recipe
 
-	// Construct the SQL query
 	err := r.db.Table("recipes").
-		Select("recipes.title").
+		Select("recipes.*, users.*,menus.*").
 		Joins("JOIN ingredients_on_recipes ON ingredients_on_recipes.recipe_id = recipes.id").
 		Joins("JOIN ingredients ON ingredients.id = ingredients_on_recipes.ingredient_id").
-		Group("recipes.id").
+		Joins("JOIN menus ON menus.id = recipes.menu_id").
+		Joins("JOIN users ON users.id = recipes.user_id").
+		Group("recipes.id, users.id, menus.id").
 		Having("COUNT(DISTINCT ingredients.id) = COUNT(DISTINCT CASE WHEN ingredients.name IN (?) THEN ingredients.name ELSE NULL END)", ingredientNames).
 		Find(&recipes).Error
 
