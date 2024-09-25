@@ -13,9 +13,9 @@ type Recipe struct {
 	CreatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   *time.Time `json:"updated_at"`
 	// Relations
-	User        User                 `gorm:"foreignKey:UserID" json:"user"`
-	Menu        Menu                 `gorm:"foreignKey:MenuID" json:"menu"`
-	Ingredients []IngredientOnRecipe `json:"ingredients"`
-	Comments    []Comment            `json:"comments"`
-	Favorites   []Favorite           `json:"favorites"`
+	User        User         `gorm:"foreignKey:UserID" json:"user"`
+	Menu        Menu         `gorm:"foreignKey:MenuID" json:"-"`
+	Ingredients []Ingredient `gorm:"many2many:ingredients_on_recipes;" json:"-"`
+	Comments    []Comment    `json:"-"`
+	Favorites   []Favorite   `json:"-"`
 }

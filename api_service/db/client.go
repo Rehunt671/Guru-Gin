@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"gitlab.com/gurugin/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -29,18 +30,22 @@ func GetPostgresConfig() *PostgresConfig {
 	}
 }
 
-// func migrateModel(db *gorm.DB) error {
-// 	return db.AutoMigrate(
-// 		&models.User{},
-// 		&models.Menu{},
-// 		&models.Ingredient{},
-// 		&models.IngredientOnMenu{},
-// 		&models.Recipe{},
-// 		&models.Comment{},
-// 		&models.Favorite{},
-// 		&models.Notification{},
-// 	)
-// }
+func migrateModel(db *gorm.DB) error {
+	return db.AutoMigrate(
+		&models.Comment{},
+		&models.Cuisine{},
+		&models.Favorite{},
+		&models.IngredientOnRecipe{},
+		&models.Ingredient{},
+		&models.Menu{},
+		&models.Notification{},
+		&models.Recipe{},
+		&models.SearchHistory{},
+		&models.Shop{},
+		&models.UserCart{},
+		&models.User{},
+	)
+}
 
 func NewPostgresDatabase() *gorm.DB {
 	configs := GetPostgresConfig()
@@ -55,6 +60,9 @@ func NewPostgresDatabase() *gorm.DB {
 		SkipDefaultTransaction: true,
 		// DisableForeignKeyConstraintWhenMigrating: true,
 	})
+
+	// migrateModel(db)
+
 	if err != nil {
 		log.Println(err)
 		return nil
